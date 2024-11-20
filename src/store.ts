@@ -1,6 +1,6 @@
-import { create } from "zustand";
 import { OrderItem } from "@/src/types";
 import { Product } from "@prisma/client";
+import { create } from "zustand";
 
 type Store = {
   order: OrderItem[];
@@ -8,6 +8,7 @@ type Store = {
   incrementQuantity: (id: Product["id"]) => void;
   decreaseQuantity: (id: Product["id"]) => void;
   removeItem: (id: Product["id"]) => void;
+  clearOrder: () => void;
 };
 
 export const useStore = create<Store>((set, get) => ({
@@ -82,6 +83,11 @@ export const useStore = create<Store>((set, get) => ({
     order = order.filter((item) => item.id !== id);
     set((state) => ({
       order,
+    }));
+  },
+  clearOrder: () => {
+    set(() => ({
+      order: [],
     }));
   },
 }));

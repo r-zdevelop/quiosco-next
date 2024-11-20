@@ -1,21 +1,49 @@
 "use client";
+import { createOrder } from "@/actions/create-order-action";
+import { OrderSchema } from "@/src/schema";
 import { useStore } from "@/src/store";
-import ProductDetails from "./ProductDetails";
-import { useMemo } from "react";
 import { formatCurrency } from "@/src/utils";
+import { useMemo } from "react";
+import { toast } from "react-toastify";
+import ProductDetails from "./ProductDetails";
 
 export default function OrderSummary() {
   const order = useStore((state) => state.order);
   const total = useMemo(() => {
     return order.reduce((acc, item) => acc + item.subtotal, 0);
   }, [order]);
+  const clearOrder = useStore((state) => state.clearOrder);
+  const handleCreateOrder = async (formData: FormData) => {
+    const data = {
+      name: formData.get("name"),
+      total,
+      order,
+    };
+    const result = OrderSchema.safeParse(data);
+    if (!result.success) {
+      result.error.issues.forEach((issue) => {
+        toast.error(issue.message);
+      });
+      return;
+    }
+    const response = await createOrder(data);
+    if (response?.errors) {
+      response.errors.forEach((issue) => {
+        toast.error(issue.message);
+      });
+      return;
+    }
+    toast.success("Tu pedido se ha generado correctamente");
+    clearOrder();
+    return;
+  };
   return (
     <aside className="lg:h-screen lg:overflow-y-scroll md:w-64 lg:w-96 p-5">
       <h1 className="text-4xl text-center font-bold">Mi Pedido</h1>
       {order.length === 0 ? (
         <p className="text-center mt-5">No hay productos en tu pedido</p>
       ) : (
-        <ul className="mt-5">
+        <div className="mt-5">
           {order.map((item, index) => (
             <ProductDetails key={index} item={item} />
           ))}
@@ -23,7 +51,20 @@ export default function OrderSummary() {
             Total a pagar: {""}
             <span className="font-bold">{formatCurrency(total)}</span>
           </p>
-        </ul>
+          <form className="w-full mt-10 space-y-5" action={handleCreateOrder}>
+            <input
+              type="text"
+              placeholder="Tu nombre"
+              name="name"
+              className="bg-white border border-gray-100 p-2 w-full"
+            />
+            <input
+              type="submit"
+              className="py-2 rounded uppercase text-white bg-black w-full text-center cursor-pointer"
+              value={"Confirmar pedido"}
+            />
+          </form>
+        </div>
       )}
     </aside>
   );
