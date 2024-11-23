@@ -39,7 +39,7 @@ export default function OrderSummary() {
   };
   return (
     <aside className="lg:h-screen lg:overflow-y-scroll md:w-64 lg:w-96 p-5">
-      <h1 className="text-4xl text-center font-bold">Mi Pedido</h1>
+      <h2 className="text-4xl text-center font-bold">Mi Pedido</h2>
       {order.length === 0 ? (
         <p className="text-center mt-5">No hay productos en tu pedido</p>
       ) : (

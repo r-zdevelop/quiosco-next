@@ -13,3 +13,12 @@ export const OrderSchema = z.object({
     })
   ),
 });
+
+export const OrderIdSchema = z.object({
+  orderId: z
+    .string()
+    .transform((value) => parseInt(value))
+    .refine((value) => !isNaN(value), {
+      message: "El id de la orden es inválido",
+    }),
+});
